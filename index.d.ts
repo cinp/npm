@@ -10,8 +10,7 @@
  */
 
 
-declare type Paramater
-{
+type Paramater = {
   type: string;
   is_array: boolean;
   choice_list: string[];
@@ -21,8 +20,7 @@ declare type Paramater
   allowed_scheme_list: string[];
 }
 
-declare type Describe
-{
+type Describe = {
   type: string;
   name: string;
   doc: string;
@@ -44,55 +42,49 @@ declare type Describe
   paramaters: Paramater[];
 }
 
-declare type Get
-{
+type Get = {
   data: any[];
   multiObject: boolean;
 }
 
-declare type Create
-{
+type Create = {
   data: any[];
   id: string;
 }
 
-declare type Update
-{
+type Update = {
   data: any[];
   multiObject: boolean;
 }
 
-declare type List
-{
+type List = {
   data: any[];
   position: number;
   count: number;
   total: number;
 }
 
-declare type Call
-{
+type Call = {
   data: any[];
   multiObject: boolean;
 }
 
-delcare class CInP 
-{
+class CInP {
   constructor( host: string );
   
   setAuth( usename: string, token: string ): void;
   describe( uri: string ): Promise<Describe>;
   get( id: string, force_multi_mode: boolean ): Promise<Get>;
-  create( uri: string, values: Object ): Promise<Create>;
-  update( uri: string, values: Object, force_multi_mode: boolean ): Promise<Update>;
+  create( uri: string, values: unknown ): Promise<Create>;
+  update( uri: string, values: unknown, force_multi_mode: boolean ): Promise<Update>;
   delete( uri: string ): Promise<boolean>;
-  list( uri: string, filter_name: string, filter_value_map: Object, position: number, count:number ): Promise<List>;
-  call( uri: string, paramater_map: Object, force_multi_mode: boolean ): Promise<Call>;
+  list( uri: string, filter_name: string, filter_value_map: unknown, position: number, count:number ): Promise<List>;
+  call( uri: string, paramater_map: unknown, force_multi_mode: boolean ): Promise<Call>;
   
   splitURI( uri: string ): string[];
   getMulti( uri: string, id_list: string[], chunk_size: number ): string[];
   extractIds( uri_list: string[] ): string[];
-  getFilteredObjects( uri: string, filter_name: string, filter_value_map: Object, list_chunk_size: number, get_chunk_size: number );
+  getFilteredObjects( uri: string, filter_name: string, filter_value_map: unknown, list_chunk_size: number, get_chunk_size: number );
 }
 
 

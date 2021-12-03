@@ -9,7 +9,7 @@
  * Last modified 2021-11-24
  */
 
-const uriRegex = /^(\/([a-zA-Z0-9\-_.!~*]+\/)*)([a-zA-Z0-9\-_.!~*]+)?(:([a-zA-Z0-9\-_.!~*\']*:)*)?(\([a-zA-Z0-9\-_.!~*]+\))?$/;
+const uriRegex = /^(\/([a-zA-Z0-9\-_.!~*]+\/)*)([a-zA-Z0-9\-_.!~*]+)?(:([a-zA-Z0-9\-_.!~*']*:)*)?(\([a-zA-Z0-9\-_.!~*]+\))?$/;
 
 class CInP
 {
@@ -109,7 +109,7 @@ class CInP
     console.error( 'cinp: doing "' + verb + '" on "' +  uri + '" Status: ' + response.status );
 
     response.text().then( ( value ) => this._ajax_fail_inner( response, value, reject ) );
-  };
+  }
 
   _ajax_fail_inner( response, data, reject ) 
   {
@@ -197,8 +197,10 @@ class CInP
             let paramaters = data.paramaters;
             for ( const paramater of paramaters )
             {
-              if( paramater.hasOwnProperty( 'length' )
-                paramater.length = parseInt( paramater.length ) );
+              if( paramater.hasOwnProperty( 'length' ) )
+              {
+                paramater.length = parseInt( paramater.length );
+              }
             }
             return( { type: 'model', name: data.name, doc: data.doc, path: data.path, return_type: data[ 'return-type' ], static: data.static, paramaters: paramaters } );
           }
@@ -221,7 +223,7 @@ class CInP
     return this._request( 'GET', uri, undefined, { 'Multi-Object': force_multi_mode } )
       .then( ( result ) =>
         {
-          return ( { data: result.data, multiObject: toUpperCase( result.headers.get( 'Multi-Object' ) ) === 'TRUE' } );
+          return ( { data: result.data, multiObject: result.headers.get( 'Multi-Object' ).toUpperCase() === 'TRUE' } );
         }
       );
   }
@@ -246,7 +248,7 @@ class CInP
     return this._request( 'UPDATE', uri, values, { 'Multi-Object': force_multi_mode } )
      .then( ( result ) =>
         {
-          return( { data: result.data, multiObject: toUpperCase( result.headers.get( 'Multi-Object' ) ) === 'TRUE' } );
+          return( { data: result.data, multiObject: result.headers.get( 'Multi-Object' ).toUpperCase() === 'TRUE' } );
         }
       );
   }
@@ -254,7 +256,7 @@ class CInP
   delete( uri )
   {
     return this._request( 'DELETE', uri )
-      .then( ( result ) =>
+      .then( () =>
         {
           return( true );
         }
@@ -298,7 +300,7 @@ class CInP
     return this._request( 'CALL', uri, paramater_map, { 'Multi-Object': force_multi_mode } )
       .then( ( result ) =>
         {
-          return( { data: result.data, multiObject: toUpperCase( result.headers.get( 'Multi-Object' ) ) === 'TRUE' } );
+          return( { data: result.data, multiObject: result.headers.get( 'Multi-Object' ).toUpperCase() === 'TRUE' } );
         }
       )
   }
@@ -331,7 +333,7 @@ class CInP
 
     if( id_list.length == 0 )
     {
-      return new Promise( ( resolve, reject ) => resolve( {} ) );
+      return new Promise( ( resolve ) => resolve( {} ) );
     }
     else
     {
