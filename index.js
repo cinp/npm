@@ -1,12 +1,13 @@
+"use strict"
 /*
  * CInP react client
- * version 0.9
+ * version 0.9.1
  * for CInP API version 0.9
  *
  * Copyright Peter Howe, Floyd Arguello
  * Released under the Apache 2.0 license
  *
- * Last modified 2021-11-24
+ * Last modified 2021-12-18
  */
 
 const uriRegex = /^(\/([a-zA-Z0-9\-_.!~*]+\/)*)([a-zA-Z0-9\-_.!~*]+)?(:([a-zA-Z0-9\-_.!~*']*:)*)?(\([a-zA-Z0-9\-_.!~*]+\))?$/;
@@ -23,7 +24,7 @@ class CInP
 
   _server_error_handler( data )
   {
-    if( typeof( data ) === 'object' )
+    if( typeof data === 'object' )
     {
       if( this.server_error_handler !== null )
       {
@@ -77,17 +78,17 @@ class CInP
         {
           if ( response.status < 200 || response.status >= 300 )
           {
-            this._ajax_fail( verb, uri, reject, response );
+            this._request_fail( verb, uri, reject, response );
           }
           else
           {
             response.json().then( ( data ) => resolve( { data: data, status: response.status, headers: response.headers } ),
-                                  ( error ) => this._ajax_fail( verb, uri, reject, error ) );
+                                  ( error ) => this._request_fail( verb, uri, reject, error ) );
           }
         },
         ( error ) =>
         {
-          this._ajax_fail( verb, uri, reject, error );
+          this._request_fail( verb, uri, reject, error );
         }
       ).catch( ( err ) =>
         {
@@ -97,7 +98,7 @@ class CInP
     } );
   }
 
-  _ajax_fail( verb, uri, reject, response )
+  _request_fail( verb, uri, reject, response )
   {
     if( !( response instanceof Response ) )
     {
@@ -108,10 +109,10 @@ class CInP
 
     console.error( 'cinp: doing "' + verb + '" on "' +  uri + '" Status: ' + response.status );
 
-    response.text().then( ( value ) => this._ajax_fail_inner( response, value, reject ) );
+    response.text().then( ( value ) => this._request_fail_inner( response, value, reject ) );
   }
 
-  _ajax_fail_inner( response, data, reject ) 
+  _request_fail_inner( response, data, reject )
   {
     try
     {
@@ -121,9 +122,10 @@ class CInP
     {
       // nothing
     }
+
     if( response.status == 400 )
     {
-      if( typeof( data ) === 'object' )
+      if( typeof data === 'object' )
       {
         if( 'message' in data )
         {
@@ -176,13 +178,18 @@ class CInP
     }
   }
 
+  isAuthencated()
+  {
+    return( this.auth_token !== null )
+  }
+
   describe( uri )
   {
     return this._request( 'DESCRIBE', uri )
       .then( ( result ) =>
         {
-          var type = result.headers.get( 'Type' );
-          var data = result.data;
+          const type = result.headers.get( 'Type' );
+          const data = result.data;
 
           if( type == 'Namespace' )
           {
@@ -197,7 +204,7 @@ class CInP
             let paramaters = data.paramaters;
             for ( const paramater of paramaters )
             {
-              if( paramater.hasOwnProperty( 'length' ) )
+              if( Object.prototype.hasOwnProperty.call( paramater, 'length' ) )
               {
                 paramater.length = parseInt( paramater.length );
               }
@@ -213,17 +220,22 @@ class CInP
       );
   }
 
-  get( uri, force_multi_mode )
+  getOne( uri )
   {
-    if( force_multi_mode === undefined )
-    {
-      force_multi_mode = false;
-    }
-
-    return this._request( 'GET', uri, undefined, { 'Multi-Object': force_multi_mode } )
+    return this._request( 'GET', uri, undefined, { 'Multi-Object': false } )
       .then( ( result ) =>
         {
-          return ( { data: result.data, multiObject: result.headers.get( 'Multi-Object' ).toUpperCase() === 'TRUE' } );
+          return result.data;
+        }
+      );
+  }
+
+  get( uri )
+  {
+    return this._request( 'GET', uri, undefined, { 'Multi-Object': true } )
+      .then( ( result ) =>
+        {
+          return result.data;
         }
       );
   }
@@ -238,12 +250,9 @@ class CInP
       );
   }
 
-  update( uri, values, force_multi_mode )
+  update( uri, values, force_multi_mode=false )
   {
-    if( force_multi_mode === undefined )
-    {
-      force_multi_mode = false;
-    }
+    force_multi_mode = ( typeof force_multi_mode !== 'undefined' ) ? force_multi_mode : false;
 
     return this._request( 'UPDATE', uri, values, { 'Multi-Object': force_multi_mode } )
      .then( ( result ) =>
@@ -263,26 +272,21 @@ class CInP
       );
   }
 
-  list( uri, filter_name, filter_value_map, position, count )
+  list( uri, filter_name=undefined, filter_value_map={}, position=undefined, count=undefined )
   {
-    var args = {};
+    const header_map = {};
+    if ( typeof filter_name !== 'undefined' )
+      header_map[ 'Filter' ] = filter_name;
 
-    if( filter_name !== undefined && filter_name !== '' )
-    {
-      args.Filter = filter_name;
-    }
+    if ( typeof position !== 'undefined' )
+      header_map[ 'Position' ] = position;
 
-    if( position !== undefined && position !== '' )
-    {
-      args.Position = position;
-    }
+    if ( typeof count !== 'undefined' )
+      header_map[ 'Count' ] = count;
 
-    if( count !== undefined && count !== '' )
-    {
-      args.Count = count;
-    }
+    filter_value_map = ( typeof filter_value_map !== 'undefined' ) ? filter_value_map : {};
 
-    return this._request( 'LIST', uri, filter_value_map, args )
+    return this._request( 'LIST', uri, filter_value_map, header_map )
       .then( ( result ) =>
         {
           return( { data: result.data, position: parseInt( result.headers.get( 'Position' ) ), count: parseInt( result.headers.get( 'Count' ) ), total: parseInt( result.headers.get( 'Total' ) ) } );
@@ -290,12 +294,9 @@ class CInP
       );
   }
 
-  call( uri, paramater_map, force_multi_mode )
+  call( uri, paramater_map, force_multi_mode=false )
   {
-    if( force_multi_mode === undefined )
-    {
-      force_multi_mode = false;
-    }
+    force_multi_mode = ( typeof force_multi_mode !== 'undefined' ) ? force_multi_mode : false;
 
     return this._request( 'CALL', uri, paramater_map, { 'Multi-Object': force_multi_mode } )
       .then( ( result ) =>
@@ -307,9 +308,9 @@ class CInP
 
   splitURI( uri )
   {
-    var parts = uriRegex.exec( uri );
+    const parts = uriRegex.exec( uri );
 
-    var result = { namespace: parts[1], model: parts[3], action: undefined, id_list: undefined }
+    const result = { namespace: parts[1], model: parts[3], action: undefined, id_list: undefined }
     if( parts[6] !== undefined )
     {
       result.action = parts[6].substr( 1, -1 );
@@ -322,14 +323,9 @@ class CInP
     return result;
   }
 
-  getMulti( uri, id_list, chunk_size )
+  getMulti( uri, id_list )
   {
-    if( chunk_size === undefined )
-    {
-      chunk_size = 10;
-    }
-
-    var uri_parts = this.splitURI( uri );
+    const uri_parts = this.splitURI( uri );
 
     if( id_list.length == 0 )
     {
@@ -366,24 +362,14 @@ class CInP
     return result;
   }
 
-  // For now we are only getting one list_chunk_size, and getting the all the list at the same time.
-  getFilteredObjects = ( uri, filter_name, filter_value_map, list_chunk_size, get_chunk_size ) =>
+  getFilteredObjects( uri, filter_name, filter_value_map, position=undefined, count=undefined )
   {
-    if( list_chunk_size === undefined || list_chunk_size === '' )
-    {
-      list_chunk_size = 100;
-    }
-    if( get_chunk_size === undefined || get_chunk_size === '' ) // techinically ignored for right now
-    {
-      get_chunk_size = 10;
-    }
-
-    return this.list( uri, filter_name, filter_value_map, 0, list_chunk_size )
+    return this.list( uri, filter_name, filter_value_map, position, count )
       .then( ( result ) =>
       {
-        var id_list = CInP.extractIds( result.data );
+        const id_list = this.extractIds( result.data );
 
-        return this.getMulti( uri, id_list, result.count );
+        return this.getMulti( uri, id_list );
       } );
   }
 }

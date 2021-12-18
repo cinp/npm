@@ -1,26 +1,27 @@
 /*
  * CInP react client
- * version 0.9
+ * version 0.9.1
  * for CInP API version 0.9
  *
  * Copyright Peter Howe, Floyd Arguello
  * Released under the Apache 2.0 license
  *
- * Last modified 2021-11-24
+ * Last modified 2021-12-18
  */
 
+export type uri = string;
 
-type Paramater = {
+export type Paramater = {
   type: string;
   is_array: boolean;
   choice_list: string[];
-  default: any;
+  default: unknown;
   length: number;
   model: string;
   allowed_scheme_list: string[];
 }
 
-type Describe = {
+export type Describe = {
   type: string;
   name: string;
   doc: string;
@@ -42,49 +43,50 @@ type Describe = {
   paramaters: Paramater[];
 }
 
-type Get = {
-  data: any[];
-  multiObject: boolean;
-}
-
-type Create = {
-  data: any[];
+export type Create<T> = {
+  data: T;
   id: string;
 }
 
-type Update = {
-  data: any[];
+export type Update<T> = {
+  data: T[];
   multiObject: boolean;
 }
 
-type List = {
-  data: any[];
+export type List = {
+  data: uri[];
   position: number;
   count: number;
   total: number;
 }
 
-type Call = {
-  data: any[];
+export type Call<T> = {
+  data: T;
   multiObject: boolean;
 }
 
-class CInP {
+export class CInP {
+  private host: string;
+  private auth_id: string;
+  private auth_token: string;
+  public server_error_handler: ( header: string, detail: string ) => void;
   constructor( host: string );
-  
-  setAuth( usename: string, token: string ): void;
-  describe( uri: string ): Promise<Describe>;
-  get( id: string, force_multi_mode: boolean ): Promise<Get>;
-  create( uri: string, values: unknown ): Promise<Create>;
-  update( uri: string, values: unknown, force_multi_mode: boolean ): Promise<Update>;
-  delete( uri: string ): Promise<boolean>;
-  list( uri: string, filter_name: string, filter_value_map: unknown, position: number, count:number ): Promise<List>;
-  call( uri: string, paramater_map: unknown, force_multi_mode: boolean ): Promise<Call>;
-  
-  splitURI( uri: string ): string[];
-  getMulti( uri: string, id_list: string[], chunk_size: number ): string[];
-  extractIds( uri_list: string[] ): string[];
-  getFilteredObjects( uri: string, filter_name: string, filter_value_map: unknown, list_chunk_size: number, get_chunk_size: number );
+
+  setAuth( usename: string | null, token: string | null ): void;
+  isAuthencated(): boolean;
+  describe( uri: uri ): Promise<Describe>;
+  get<T>( id: uri ): Promise<T>;
+  getOne<T>( id: uri ): Promise<T>;
+  create<T>( uri: uri, values: T ): Promise<Create<T>>;
+  update<T>( uri: uri, values: T, force_multi_mode?: boolean ): Promise<Update<T>>;
+  delete( uri: uri ): Promise<boolean>;
+  list( uri: uri, filter_name?: string, filter_value_map?: Record<string, unknown>, position?: number, count? :number ): Promise<List>;
+  call( uri: uri, paramater_map: unknown, force_multi_mode?: boolean ): Promise<Call>;
+
+  splitURI( uri: uri ): string[];
+  getMulti<T>( uri: uri, id_list: string[] ): Promise<Record<uri, T>>;
+  extractIds( uri_list: uri[] ): string[];
+  getFilteredObjects<T>( uri: string, filter_name?: string, filter_value_map?: Record<string, unknown>, position?: number, count? :number ): Promise<Record<uri, T>>;
 }
 
-
+export default CInP;
