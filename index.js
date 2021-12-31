@@ -82,8 +82,11 @@ class CInP
           }
           else
           {
-            response.json().then( ( data ) => resolve( { data: data, status: response.status, headers: response.headers } ),
-                                  ( error ) => this._request_fail( verb, uri, reject, error ) );
+            if( response.headers.get( 'Content-Length' ) === "0" )
+              resolve( { data: {}, status: response.status, headers: response.headers } );
+            else
+              response.json().then( ( data ) => resolve( { data: data, status: response.status, headers: response.headers } ),
+                                    ( error ) => this._request_fail( verb, uri, reject, error ) );
           }
         },
         ( error ) =>
@@ -123,7 +126,7 @@ class CInP
       // nothing
     }
 
-    if( response.status == 400 )
+    if( response.status === 400 )
     {
       if( typeof data === 'object' )
       {
@@ -141,19 +144,19 @@ class CInP
         reject( 'Invalid Request', data );
       }
     }
-    else if( response.status == 401 )
+    else if( response.status === 401 )
     {
       reject( 'Invalid Session' );
     }
-    else if( response.status == 403 )
+    else if( response.status === 403 )
     {
       reject( 'Not Authorized' );
     }
-    else if( response.status == 404 )
+    else if( response.status === 404 )
     {
       reject( 'Not Found' );
     }
-    else if( response.status == 500 )
+    else if( response.status === 500 )
     {
       this._server_error_handler( data );
       reject( 'Server Error' );
@@ -191,15 +194,15 @@ class CInP
           const type = result.headers.get( 'Type' );
           const data = result.data;
 
-          if( type == 'Namespace' )
+          if( type === 'Namespace' )
           {
             return( { type: 'namespace', name: data.name, doc: data.doc, path: data.path, version: data[ 'api-version' ], multi_uri_max: parseInt( data[ 'multi-uri-max' ] ), namespace_list: data.namespaces, model_list: data.models } );
           }
-          else if( type == 'Model' )
+          else if( type === 'Model' )
           {
             return( { type: 'model', name: data.name, doc: data.doc, path: data.path, constant_list: data.constants, field_list: data.fields, action_list: data.actions, not_allowed_verbs: data[ 'not-allowed-methods' ], list_filter_list: data[ 'list-filters' ] } );
           }
-          else if( type == 'Action' )
+          else if( type === 'Action' )
           {
             let paramaters = data.paramaters;
             for ( const paramater of paramaters )
@@ -313,11 +316,11 @@ class CInP
     const result = { namespace: parts[1], model: parts[3], action: undefined, id_list: undefined }
     if( parts[6] !== undefined )
     {
-      result.action = parts[6].substr( 1, -1 );
+      result.action = parts[6].substring( 1, parts[6].length -1  )
     }
     if( parts[4] !== undefined )
     {
-      result.id_list = parts[4].split( ':' );
+      result.id_list = parts[4].split( ':' ).slice( 1, -1 );
     }
 
     return result;
@@ -327,7 +330,7 @@ class CInP
   {
     const uri_parts = this.splitURI( uri );
 
-    if( id_list.length == 0 )
+    if( id_list.length === 0 )
     {
       return new Promise( ( resolve ) => resolve( {} ) );
     }
