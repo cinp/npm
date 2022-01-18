@@ -22,32 +22,6 @@ class CInP
     this.server_error_handler = null;
   }
 
-  _server_error_handler( data )
-  {
-    if( typeof data === 'object' )
-    {
-      if( this.server_error_handler !== null )
-      {
-        this.server_error_handler( data.message, data.trace );
-      }
-      else
-      {
-        console.error( 'cinp: Server Error: "' + data.message + '"' );
-      }
-    }
-    else
-    {
-      if( this.server_error_handler !== null )
-      {
-        this.server_error_handler( '', data );
-      }
-      else
-      {
-        console.error( 'cinp: Server Error: "' + data + '"' );
-      }
-    }
-  }
-
   _request( verb, uri, data, header_map )
   {
     if( this.auth_id !== null )
@@ -96,7 +70,7 @@ class CInP
       ).catch( ( err ) =>
         {
           console.error( 'cinp: error handeling result: "'+ err + '"' );
-          reject( 'Error handeling response' );
+          reject( { msg: 'Error handeling response' } );
         } )
     } );
   }
@@ -106,7 +80,7 @@ class CInP
     if( !( response instanceof Response ) )
     {
       console.error( 'cinp: doing "' + verb + '" on "' +  uri + '" Error: ' + response );
-      reject( 'Error "' + response + '"' );
+      reject( { msg: 'Error "' + response + '"' } );
       return;
     }
 
@@ -132,38 +106,44 @@ class CInP
       {
         if( 'message' in data )
         {
-          reject( 'Invalid Request', data.message );
+          reject( { msg: 'Invalid Request', detail: data.message } );
         }
         else
         {
-          reject( 'Invalid Request', data );
+          reject( { msg: 'Invalid Request', detail: data } );
         }
       }
       else
       {
-        reject( 'Invalid Request', data );
+        reject( { msg: 'Invalid Request', detail: data } );
       }
     }
     else if( response.status === 401 )
     {
-      reject( 'Invalid Session' );
+      reject( { msg: 'Invalid Session' } );
     }
     else if( response.status === 403 )
     {
-      reject( 'Not Authorized' );
+      reject( { msg: 'Not Authorized' } );
     }
     else if( response.status === 404 )
     {
-      reject( 'Not Found' );
+      reject( { msg: 'Not Found' } );
     }
     else if( response.status === 500 )
     {
-      this._server_error_handler( data );
-      reject( 'Server Error' );
+      if( typeof data === 'object' )
+      {
+        reject( { msg: 'Server Error', detail: data.message, trace: data.trace } );
+      }
+      else
+      {
+        reject( { msg: 'Server Error', detail: data } );
+      }
     }
     else
     {
-      reject( data );
+      reject( { detail: data } );
     }
   }
 
