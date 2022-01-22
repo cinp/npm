@@ -1,13 +1,10 @@
 "use strict"
 /*
  * CInP react client
- * version 0.9.1
- * for CInP API version 0.9
+ * for CInP API version 1.0
  *
  * Copyright Peter Howe, Floyd Arguello
  * Released under the Apache 2.0 license
- *
- * Last modified 2021-12-18
  */
 
 const uriRegex = /^(\/([a-zA-Z0-9\-_.!~*]+\/)*)([a-zA-Z0-9\-_.!~*]+)?(:([a-zA-Z0-9\-_.!~*']*:)*)?(\([a-zA-Z0-9\-_.!~*]+\))?$/;
@@ -34,7 +31,7 @@ class CInP
       method: verb,
       headers: Object.assign( {}, header_map, {
                                                 'Accept': 'application/json',
-                                                'CInP-Version': '0.9'
+                                                'CInP-Version': '1.0'
                                               } )
     };
 
