@@ -14,16 +14,21 @@ class CInP
   constructor( host )
   {
     this.host = host;
-    this.auth_id = null;
-    this.auth_token = null;
+    this.headers = {};
     this.server_error_handler = null;
+    this.using_cookies = false;
+  }
+
+  setHeader( name, value )
+  {
+    this.headers[ name ] = value;
   }
 
   _request( verb, uri, data, header_map )
   {
     if( this.auth_id !== null )
     {
-      header_map = Object.assign( {}, header_map, { 'Auth-Id': this.auth_id, 'Auth-Token': this.auth_token } );
+      header_map = Object.assign( {}, header_map, this.headers );
     }
 
     const encodedData = JSON.stringify( data );
@@ -34,6 +39,11 @@ class CInP
                                                 'CInP-Version': '1.0'
                                               } )
     };
+
+    if( this.using_cookies )
+      request.credentials = 'include';
+    else
+      request.credentials = 'omit';
 
     if( encodedData !== undefined )
     {
@@ -144,23 +154,14 @@ class CInP
     }
   }
 
-  setAuth( auth_id, auth_token )
+  raw( verb, uri, data, header_map )
   {
-    if( auth_token === undefined || auth_token === '' )
-    {
-      this.auth_id = null;
-      this.auth_token = null;
-    }
-    else
-    {
-      this.auth_id = auth_id;
-      this.auth_token = auth_token;
-    }
-  }
-
-  isAuthencated()
-  {
-    return( this.auth_token !== null )
+    return this._request( verb, uri, data, header_map )
+      .then( ( result ) =>
+        {
+          return result.data;
+        }
+      );
   }
 
   describe( uri )
@@ -177,7 +178,7 @@ class CInP
           }
           else if( type === 'Model' )
           {
-            return( { type: 'model', name: data.name, doc: data.doc, path: data.path, constant_list: data.constants, field_list: data.fields, action_list: data.actions, not_allowed_verbs: data[ 'not-allowed-methods' ], list_filter_list: data[ 'list-filters' ] } );
+            return( { type: 'model', name: data.name, doc: data.doc, path: data.path, constant_list: data.constants, field_list: data.fields, action_list: data.actions, not_allowed_verb_list: data[ 'not-allowed-verbs' ], list_filter_list: data[ 'list-filters' ], query_filter_field_list: data[ 'query-filter-fields' ], query_sort_field_list: data[ 'query-sort-fields' ] } );
           }
           else if( type === 'Action' )
           {

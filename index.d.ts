@@ -67,13 +67,15 @@ export type Call<T> = {
 
 export class CInP {
   private host: string;
-  private auth_id: string;
-  private auth_token: string;
+  private headers: Record<string, string>;
   public server_error_handler: ( header: string, detail: string ) => void;
+  public using_cookies: boolean;
   constructor( host: string );
 
-  setAuth( usename: string | null, token: string | null ): void;
-  isAuthencated(): boolean;
+  setHeader( name: string, value: string ): void;
+
+  raw( verb: string, uri: string, data: object, header_map: Record<string, string> ): Promise<unknown>;
+
   describe( uri: uri ): Promise<Describe>;
   get<T>( id: uri ): Promise<T>;
   getOne<T>( id: uri ): Promise<T>;
