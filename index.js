@@ -102,9 +102,9 @@ class CInP
     {
       data = JSON.parse( data );
     }
-    finally
+    catch
     {
-      // nothing
+      data = undefined;
     }
 
     if( response.status === 400 )
