@@ -63,7 +63,7 @@ class CInP
           }
           else
           {
-            if( response.headers.get( 'Content-Length' ) === "0" )
+            if( response.headers.get( 'Content-Length' ) === '0' )
               resolve( { data: {}, status: response.status, headers: response.headers } );
             else
               response.json().then( ( data ) => resolve( { data: data, status: response.status, headers: response.headers } ),

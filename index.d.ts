@@ -79,8 +79,8 @@ export class CInP {
   describe( uri: uri ): Promise<Describe>;
   get<T>( id: uri ): Promise<T>;
   getOne<T>( id: uri ): Promise<T>;
-  create<T>( uri: uri, values: T ): Promise<Create<T>>;
-  update<T>( uri: uri, values: T, force_multi_mode?: boolean ): Promise<Update<T>>;
+  create<T>( uri: uri, values: Record<string, unknown> ): Promise<Create<T>>;
+  update<T>( uri: uri, values: Record<string, unknown>, force_multi_mode?: boolean ): Promise<Update<T>>;
   delete( uri: uri ): Promise<boolean>;
   list( uri: uri, filter_name?: string, filter_value_map?: Record<string, unknown>, position?: number, count? :number ): Promise<List>;
   call( uri: uri, paramater_map: unknown, force_multi_mode?: boolean ): Promise<Call>;
