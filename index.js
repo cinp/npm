@@ -236,7 +236,7 @@ class CInP
     return this._request( 'UPDATE', uri, values, { 'Multi-Object': true } )
      .then( ( result ) =>
         {
-          return( data: result.data );
+          return( result.data );
         }
       );
   }
@@ -246,7 +246,7 @@ class CInP
     return this._request( 'UPDATE', uri, values, { 'Multi-Object': false } )
      .then( ( result ) =>
         {
-          return( data: result.data );
+          return( result.data );
         }
       );
   }
