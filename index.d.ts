@@ -48,21 +48,11 @@ export type Create<T> = {
   id: string;
 }
 
-export type Update<T> = {
-  data: T[];
-  multiObject: boolean;
-}
-
 export type List = {
   data: uri[];
   position: number;
   count: number;
   total: number;
-}
-
-export type Call<T> = {
-  data: T;
-  multiObject: boolean;
 }
 
 export class CInP {
@@ -77,13 +67,15 @@ export class CInP {
   raw( verb: string, uri: string, data: object, header_map: Record<string, string> ): Promise<unknown>;
 
   describe( uri: uri ): Promise<Describe>;
-  get<T>( id: uri ): Promise<T>;
+  get<T>( id: uri ): Promise<T[]>;
   getOne<T>( id: uri ): Promise<T>;
   create<T>( uri: uri, values: Record<string, unknown> ): Promise<Create<T>>;
-  update<T>( uri: uri, values: Record<string, unknown>, force_multi_mode?: boolean ): Promise<Update<T>>;
+  update<T>( uri: uri, values: Record<string, unknown> ): Promise<T[]>;
+  updateOne<T>( uri: uri, values: Record<string, unknown> ): Promise<T>;
   delete( uri: uri ): Promise<boolean>;
   list( uri: uri, filter_name?: string, filter_value_map?: Record<string, unknown>, position?: number, count? :number ): Promise<List>;
-  call( uri: uri, paramater_map: unknown, force_multi_mode?: boolean ): Promise<Call>;
+  call( uri: uri, paramater_map: unknown ): Promise<unknown[]>;
+  callOne( uri: uri, paramater_map: unknown ): Promise<unknown>;
 
   splitURI( uri: uri ): string[];
   getMulti<T>( uri: uri, id_list: string[] ): Promise<Record<uri, T>>;

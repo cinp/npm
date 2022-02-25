@@ -201,9 +201,9 @@ class CInP
       );
   }
 
-  getOne( uri )
+  get( uri )
   {
-    return this._request( 'GET', uri, undefined, { 'Multi-Object': false } )
+    return this._request( 'GET', uri, undefined, { 'Multi-Object': true } )
       .then( ( result ) =>
         {
           return result.data;
@@ -211,9 +211,9 @@ class CInP
       );
   }
 
-  get( uri )
+  getOne( uri )
   {
-    return this._request( 'GET', uri, undefined, { 'Multi-Object': true } )
+    return this._request( 'GET', uri, undefined, { 'Multi-Object': false } )
       .then( ( result ) =>
         {
           return result.data;
@@ -231,14 +231,22 @@ class CInP
       );
   }
 
-  update( uri, values, force_multi_mode=false )
+  update( uri, values )
   {
-    force_multi_mode = ( typeof force_multi_mode !== 'undefined' ) ? force_multi_mode : false;
-
-    return this._request( 'UPDATE', uri, values, { 'Multi-Object': force_multi_mode } )
+    return this._request( 'UPDATE', uri, values, { 'Multi-Object': true } )
      .then( ( result ) =>
         {
-          return( { data: result.data, multiObject: result.headers.get( 'Multi-Object' ).toUpperCase() === 'TRUE' } );
+          return( data: result.data );
+        }
+      );
+  }
+
+  updateOne( uri, values )
+  {
+    return this._request( 'UPDATE', uri, values, { 'Multi-Object': false } )
+     .then( ( result ) =>
+        {
+          return( data: result.data );
         }
       );
   }
@@ -275,14 +283,22 @@ class CInP
       );
   }
 
-  call( uri, paramater_map, force_multi_mode=false )
+  call( uri, paramater_map )
   {
-    force_multi_mode = ( typeof force_multi_mode !== 'undefined' ) ? force_multi_mode : false;
-
-    return this._request( 'CALL', uri, paramater_map, { 'Multi-Object': force_multi_mode } )
+    return this._request( 'CALL', uri, paramater_map, { 'Multi-Object': true } )
       .then( ( result ) =>
         {
-          return( { data: result.data, multiObject: result.headers.get( 'Multi-Object' ).toUpperCase() === 'TRUE' } );
+          return( result.data );
+        }
+      )
+  }
+
+  callOne( uri, paramater_map )
+  {
+    return this._request( 'CALL', uri, paramater_map, { 'Multi-Object': false } )
+      .then( ( result ) =>
+        {
+          return( result.data );
         }
       )
   }
