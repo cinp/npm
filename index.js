@@ -24,6 +24,11 @@ class CInP
     this.headers[ name ] = value;
   }
 
+  clearHeader( name )
+  {
+    delete this.headers[ name ];
+  }
+
   _request( verb, uri, data, header_map )
   {
     if( this.auth_id !== null )
