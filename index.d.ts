@@ -63,6 +63,7 @@ export class CInP {
   constructor( host: string );
 
   setHeader( name: string, value: string ): void;
+  clearHeader( name: string ): void;
 
   raw( verb: string, uri: string, data: object, header_map: Record<string, string> ): Promise<unknown>;
 
