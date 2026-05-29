@@ -11,7 +11,7 @@
 
 export type uri = string;
 
-export type Paramater = {
+export type Parameter = {
   type: string;
   is_array: boolean;
   choice_list: string[];
@@ -40,7 +40,7 @@ export type Describe = {
   // Action
   return_type: string;
   static: boolean;
-  paramaters: Paramater[];
+  parameters: Parameter[];
 }
 
 export type Create<T> = {
@@ -75,8 +75,8 @@ export class CInP {
   updateOne<T>( uri: uri, values: Record<string, unknown> ): Promise<T>;
   delete( uri: uri ): Promise<boolean>;
   list( uri: uri, filter_name?: string, filter_value_map?: Record<string, unknown>, position?: number, count? :number ): Promise<List>;
-  call( uri: uri, paramater_map: unknown ): Promise<unknown[]>;
-  callOne( uri: uri, paramater_map: unknown ): Promise<unknown>;
+  call( uri: uri, parameter_map: unknown ): Promise<unknown[]>;
+  callOne( uri: uri, parameter_map: unknown ): Promise<unknown>;
 
   splitURI( uri: uri ): string[];
   getMulti<T>( uri: uri, id_list: string[] ): Promise<Record<uri, T>>;

@@ -1,7 +1,7 @@
 "use strict"
 /*
  * CInP react client
- * for CInP API version 1.0
+ * for CInP API version 2.0
  *
  * Copyright Peter Howe, Floyd Arguello
  * Released under the Apache 2.0 license
@@ -41,7 +41,7 @@ class CInP
       method: verb,
       headers: Object.assign( {}, header_map, {
                                                 'Accept': 'application/json',
-                                                'CInP-Version': '1.0'
+                                                'CInP-Version': '2.0'
                                               } )
     };
 
@@ -187,15 +187,15 @@ class CInP
           }
           else if( type === 'Action' )
           {
-            let paramaters = data.paramaters;
-            for ( const paramater of paramaters )
+            let parameters = data.parameters;
+            for ( const parameter of parameters )
             {
-              if( Object.prototype.hasOwnProperty.call( paramater, 'length' ) )
+              if( Object.prototype.hasOwnProperty.call( parameter, 'length' ) )
               {
-                paramater.length = parseInt( paramater.length );
+                parameter.length = parseInt( parameter.length );
               }
             }
-            return( { type: 'model', name: data.name, doc: data.doc, path: data.path, return_type: data[ 'return-type' ], static: data.static, paramaters: paramaters } );
+            return( { type: 'model', name: data.name, doc: data.doc, path: data.path, return_type: data[ 'return-type' ], static: data.static, parameters: parameters } );
           }
           else
           {
@@ -288,9 +288,9 @@ class CInP
       );
   }
 
-  call( uri, paramater_map )
+  call( uri, parameter_map )
   {
-    return this._request( 'CALL', uri, paramater_map, { 'Multi-Object': true } )
+    return this._request( 'CALL', uri, parameter_map, { 'Multi-Object': true } )
       .then( ( result ) =>
         {
           return( result.data );
@@ -298,9 +298,9 @@ class CInP
       )
   }
 
-  callOne( uri, paramater_map )
+  callOne( uri, parameter_map )
   {
-    return this._request( 'CALL', uri, paramater_map, { 'Multi-Object': false } )
+    return this._request( 'CALL', uri, parameter_map, { 'Multi-Object': false } )
       .then( ( result ) =>
         {
           return( result.data );
