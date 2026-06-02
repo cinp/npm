@@ -1,12 +1,10 @@
 /*
  * CInP react client
- * version 0.9.1
- * for CInP API version 0.9
+ * version 2.0.0
+ * for CInP API version 2.0
  *
  * Copyright Peter Howe, Floyd Arguello
  * Released under the Apache 2.0 license
- *
- * Last modified 2021-12-18
  */
 
 export type uri = string;
@@ -19,6 +17,13 @@ export type Parameter = {
   length: number;
   model: string;
   allowed_scheme_list: string[];
+}
+
+export type URIParts = {
+  namespace: string;
+  model: string;
+  action: string | undefined;
+  id_list: string[] | undefined;
 }
 
 export type Describe = {
@@ -35,8 +40,10 @@ export type Describe = {
   constant_list: string[];
   field_list: string[];
   action_list: string[];
-  not_allowed_verbs: string[];
+  not_allowed_verb_list: string[];
   list_filter_list: string[];
+  query_filter_field_list: string[];
+  query_sort_field_list: string[];
   // Action
   return_type: string;
   static: boolean;
@@ -78,7 +85,7 @@ export class CInP {
   call( uri: uri, parameter_map: unknown ): Promise<unknown[]>;
   callOne( uri: uri, parameter_map: unknown ): Promise<unknown>;
 
-  splitURI( uri: uri ): string[];
+  splitURI( uri: uri ): URIParts;
   getMulti<T>( uri: uri, id_list: string[] ): Promise<Record<uri, T>>;
   extractIds( uri_list: uri[] ): string[];
   getFilteredObjects<T>( uri: string, filter_name?: string, filter_value_map?: Record<string, unknown>, position?: number, count? :number ): Promise<Record<uri, T>>;
